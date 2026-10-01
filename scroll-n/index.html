@@ -13,6 +13,10 @@
         .headline-glow {
             text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
         }
+        /* Performance optimization (Point 4) */
+        .main-visual, #hero-content {
+            will-change: transform, opacity;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-slate-100 font-sans">
@@ -38,7 +42,7 @@
         </div>
         
         <!-- Placeholder for the main visual element (car) to be animated later -->
-        <div class="absolute bottom-[-15%] w-full max-w-4xl z-0 visual-element-container flex justify-center">
+        <div class="absolute bottom-[-15%] w-full max-w-4xl z-0 visual-element-container flex justify-center" style="perspective: 1000px;">
             <img src="https://images.unsplash.com/photo-1583121274602-3e2820c69888?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80" alt="Sport Car" class="w-full max-w-3xl h-auto rounded-3xl shadow-2xl shadow-sky-900/20 main-visual" id="main-visual">
         </div>
     </section>
