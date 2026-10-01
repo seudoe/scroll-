@@ -13,38 +13,32 @@ This project is built using an **npm workspaces** setup. It contains two separat
 
 ## 🚀 How to Run
 
-Because this is a monorepo using workspaces, you can run either project directly from this root directory, or by navigating into their respective folders.
+To make it easy to start either version, custom shortcut scripts have been added to the root `package.json`.
 
-### Running the React Version (`scroll-r`)
+By default, running `npm run dev` in the root folder will start the **Native (Vanilla JS)** version!
 
-From the root directory:
+### Quick Commands (From the Root Directory)
 
-```bash
-npm run dev --workspace=scroll-r
-```
+- **Start Native / Vanilla JS version (Default)**:
+  ```bash
+  npm run dev
+  # OR
+  npm run dev-vanilla
+  ```
+- **Start React version**:
+  ```bash
+  npm run dev-react
+  ```
 
-Or, by navigating into the folder:
+*(You can still run these by navigating into the folders like `cd scroll-n && npm run dev`, or by double-clicking `index.html` for the native version).*
 
-```bash
-cd scroll-r
-npm run dev
-```
+---
 
-### Running the Native Version (`scroll-n`)
+## 🌐 Deployment
 
-From the root directory:
+This repository is set up with a GitHub Actions workflow (`.github/workflows/deploy.yml`) to automatically deploy to **GitHub Pages**.
 
-```bash
-npm run dev --workspace=scroll-n
-```
-
-Or, by navigating into the folder:
-
-```bash
-cd scroll-n
-npm run dev
-# (You can also just double-click index.html to view it in your browser!)
-```
+**By default, the Native (Vanilla JS) version (`scroll-n`) is the one deployed to production.** Because it requires no build tools, the GitHub Action simply uploads the `scroll-n` directory and publishes it instantly.
 
 ---
 
