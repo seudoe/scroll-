@@ -1,0 +1,17 @@
+{
+  "name": "scroll-an",
+  "version": "1.0.0",
+  "description": "This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.",
+  "main": "index.js",
+  "workspaces": [
+    "scroll-n",
+    "scroll-r"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

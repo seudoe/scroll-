@@ -20,9 +20,9 @@ body {
 }
 
 /* ── Scroll container ─────────────────────────────────── */
-/* Tall enough so the scroll drives the whole animation */
+/* 400vh gives 300vh of scrollable travel to drive the animation */
 .scroll-root {
-  height: 400vh; /* 4 screens of scroll travel */
+  height: 400vh;
   position: relative;
 }
 
@@ -57,10 +57,9 @@ body {
   z-index: 2;
   display: flex;
   align-items: center;
-  overflow: hidden;
 }
 
-/* Asphalt fill (right portion, behind the headline) */
+/* Asphalt fill behind everything */
 .road-band::after {
   content: '';
   position: absolute;
@@ -75,54 +74,92 @@ body {
   left: 0;
   top: 0;
   bottom: 0;
-  /* Covers left half of road */
-  width: 50%;
+  /* Full width — the road overlay masks the right half visually */
+  width: 100%;
   background: #2e8b42;
-  z-index: 3;
+  z-index: 1;                   /* below road overlay (z-index 2) and car (z-index 5) */
   display: flex;
   align-items: center;
-  padding-left: 32px;
+  padding-left: 28px;
+
+  /* overflow:hidden clips the text-cover within the banner */
   overflow: hidden;
 }
 
+/* ── Road right-half overlay ───────────────────────────── */
+/* Sits on top of the banner, covering its right half with road colour.
+   The car (z-index 5) still draws above this overlay. */
+.road-right {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 50%;
+  background: #111;
+  z-index: 3;
+  pointer-events: none;
+}
+
+
+/* ── Headline text ─────────────────────────────────────── */
 .headline-text {
-  font-size: clamp(32px, 5.5vw, 80px);
+  position: relative;
+  z-index: 1;                   /* sits below the cover (z-index 2) */
+  font-size: clamp(28px, 5vw, 74px);
   font-weight: 900;
   color: rgba(255, 255, 255, 0.92);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   white-space: nowrap;
   text-transform: uppercase;
   line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Reveal cover ─────────────────────────────────────── */
+/*
+  This div lives INSIDE .headline-banner (overflow:hidden).
+  Its left edge is placed at the car's screen-X position via GSAP.
+  Everything to the left of the cover = text is revealed.
+  Everything to the right (under the cover) = text is hidden.
+  The road colour (#111) makes it blend seamlessly with the asphalt.
+*/
+.text-cover {
+  position: absolute;
+  top: 0;
+  /* left:0 is the reference — GSAP translateX moves it */
+  left: 0;
+  height: 100%;
+  /* Extra wide so it fully covers the banner even at the start */
+  width: 300vw;
+  background: #111;             /* same as road / asphalt */
+  z-index: 2;                   /* above text (1), below car (5) */
+  pointer-events: none;
+  will-change: transform;
 }
 
 /* ── Car ──────────────────────────────────────────────── */
 .car-wrap {
   position: absolute;
-  /* Vertically centred in the road */
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 5; /* on top of both road and banner */
+  left: 0;                      /* GSAP owns x — no CSS horizontal offset */
+  transform: translateY(-50%);  /* Only vertical centering via CSS */
+  z-index: 5;
   will-change: transform;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.car-svg {
-  width: auto;
-  height: 148px; /* fits snugly in 160px road */
-  display: block;
-  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.6));
-}
-
 .car-img {
-  /* The PNG is landscape (nose pointing right) — perfect for horizontal road */
-  height: 140px;
+  /* PNG is landscape (nose→right). Fits road naturally. */
+  height: 144px;
   width: auto;
   display: block;
-  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.7));
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.8));
   object-fit: contain;
+  pointer-events: none;
+  user-select: none;
 }
 
 /* ── Stats grid ───────────────────────────────────────── */
@@ -135,7 +172,7 @@ body {
 
 .stat-card {
   position: absolute;
-  width: 200px;
+  width: 210px;
   padding: 20px 22px;
   border-radius: 10px;
   display: flex;
@@ -145,7 +182,7 @@ body {
 }
 
 .stat-value {
-  font-size: 36px;
+  font-size: 38px;
   font-weight: 700;
   color: #fff;
   line-height: 1;
@@ -153,27 +190,24 @@ body {
 
 .stat-label {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.82);
   line-height: 1.4;
 }
 
-/* Positions — roughly matching the reference screenshots */
+/* Card positions (mirror the reference screenshots) */
 .stat-top-left {
   top: 8%;
   left: 52%;
 }
-
 .stat-top-right {
   top: 8%;
-  left: calc(52% + 220px);
+  left: calc(52% + 228px);
 }
-
 .stat-bottom-left {
   bottom: 8%;
   left: 46%;
 }
-
 .stat-bottom-right {
   bottom: 8%;
-  left: calc(46% + 220px);
+  left: calc(46% + 228px);
 }
