@@ -1,11 +1,7 @@
 /* ── Reset & base ─────────────────────────────────────── */
 *,
 *::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   background: #3a3a3f;
@@ -13,17 +9,10 @@ body {
   overflow-x: hidden;
 }
 
-#root {
-  width: 100%;
-  max-width: 100%;
-  min-height: 100%;
-}
+#root { width: 100%; max-width: 100%; min-height: 100%; }
 
-/* ── Scroll container ─────────────────────────────────── */
-.scroll-root {
-  height: 400vh;
-  position: relative;
-}
+/* ── Scroll container (400vh → 300vh of scroll travel) ── */
+.scroll-root { height: 400vh; position: relative; }
 
 /* ── Sticky viewport ─────────────────────────────────── */
 .sticky-wrap {
@@ -34,25 +23,15 @@ body {
   overflow: hidden;
 }
 
-/* ── Dark background ──────────────────────────────────── */
+/* ── Dark background (z-index 1) ──────────────────────── */
 .bg-dark {
   position: absolute;
   inset: 0;
   background: #3a3a3f;
-  z-index: 0;
+  z-index: 1;
 }
 
-/* ── Road band ────────────────────────────────────────── */
-/*
-  Z-INDEX STACK (within .road-band stacking context):
-    0  ::after           black asphalt, full width
-    1  .headline-banner  green ribbon, left 50%, OWN stacking context
-         z-index 1 │ .headline-text   white text
-         z-index 2 │ .text-cover      green cover (same colour as ribbon!)
-                          slides right with car → cover hides text (green-on-green)
-                          overflow:hidden clips it at banner boundary
-    5  .car-wrap         McLaren, on top of everything
-*/
+/* ── Black road ribbon (z-index 2) ────────────────────── */
 .road-band {
   position: absolute;
   top: 50%;
@@ -60,45 +39,18 @@ body {
   right: 0;
   transform: translateY(-50%);
   height: 160px;
+  background: #111; /* Black road */
   z-index: 2;
 }
 
-/* Black asphalt — full-width base layer */
-.road-band::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #111;
-  z-index: 0;
-}
-
-/* ── Green headline banner ─────────────────────────────── */
-/*
-  - width 50%: green on the left, road shows through on the right
-  - overflow: hidden: CLIPS the text-cover so it never bleeds onto the road
-  - z-index 1: creates its own stacking context; car (z-index 5) sits above it
-*/
-.headline-banner {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 50%;
-  background: #2e8b42;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  padding-left: 28px;
-  overflow: hidden;   /* ← clips text-cover; it can travel freely inside */
-}
-
-/* ── Headline text ─────────────────────────────────────── */
+/* ── Text formatting (shared) ─────────────────────────── */
 .headline-text {
-  position: relative;
-  z-index: 1;         /* within banner stacking context; below cover (z-index 2) */
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
   font-size: clamp(28px, 5vw, 74px);
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.92);
   letter-spacing: 0.08em;
   white-space: nowrap;
   text-transform: uppercase;
@@ -107,43 +59,37 @@ body {
   user-select: none;
 }
 
-/* ── Reveal cover ─────────────────────────────────────── */
-/*
-  LIVES INSIDE .headline-banner.
-  KEY: background is #2e8b42 — the SAME GREEN as the banner.
-  Effect: wherever the cover sits you see green (ribbon looks normal),
-  but the white text underneath is invisible (green-on-green).
-  As the car drives right the cover follows, and overflow:hidden clips
-  it away from the left → white text appears, still on green ribbon.
-
-  When cover moves fully past the 50% banner boundary it is completely
-  clipped away, leaving the entire text visible.
-
-  z-index 2 (within banner stacking context) → above text (1).
-*/
-.text-cover {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 300vw;           /* wider than any screen */
-  background: #2e8b42;   /* ← same green as banner — ribbon colour preserved */
-  z-index: 2;
-  pointer-events: none;
-  will-change: transform;
+/* Base text in the road (z-index 3) - invisible to start */
+.road-band > .headline-text {
+  z-index: 3;
+  color: transparent; 
 }
 
-/* ── Car ──────────────────────────────────────────────── */
+/* ── Green ribbon (z-index 4) ─────────────────────────── */
+.green-ribbon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #2e8b42;
+  overflow: hidden; /* Clips the white text exactly at the ribbon's edge */
+  z-index: 4;
+  will-change: width;
+}
+
+/* Text inside green ribbon - visible white */
+.green-ribbon > .headline-text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ── Car (z-index 5) ──────────────────────────────────── */
 .car-wrap {
   position: absolute;
   top: 50%;
+  margin-top: -72px; /* Centers 144px height */
   left: 0;
-  transform: translateY(-50%);
   z-index: 5;
   will-change: transform;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .car-img {

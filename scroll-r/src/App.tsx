@@ -16,35 +16,29 @@ const stats = [
 export default function App() {
   const containerRef = useRef<HTMLDivElement>(null)
   const carRef       = useRef<HTMLDivElement>(null)
-  const coverRef     = useRef<HTMLDivElement>(null)
-  const headlineRef  = useRef<HTMLDivElement>(null)
+  const ribbonRef    = useRef<HTMLDivElement>(null)
   const statRefs     = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const W = window.innerWidth
+      const W    = window.innerWidth
+      const carW = 302  // px at height 144px
 
-      // ── Car dimensions ───────────────────────────────────────────────
-      // McLaren 720S PNG: height=144px, aspect ratio ≈ 2.1:1 → width ≈ 302px
-      const carW = 302
+      // ── The one rule ─────────────────────────────────────────────────
+      // Car CENTER  = green ribbon RIGHT EDGE  at all times.
+      //
+      // Car center starts at x=0 (left screen edge) → ends at x=W (right edge).
+      // So ribbon width  starts at 0               → ends at  W.
+      //
+      // Both animate from 0 → W over the same timeline → perfectly locked.
+      //
+      // car-wrap.left = 0, so  car center = car_x + carW/2
+      //   carStart = -carW/2 → center = 0  ✓
+      //   carEnd   = W-carW/2 → center = W ✓
 
-      // ── Car travel: fully off-screen left → fully off-screen right ──
-      // car-wrap is at left:0 in CSS (no horizontal CSS transform).
-      // GSAP owns x completely — no conflict.
-      // x = -carW  → car is entirely off the left edge (right edge at 0px)
-      // x =  W     → car is entirely off the right edge (left edge at W px)
-      const carStart = -carW      // enter from left
-      const carEnd   =  W         // exit to right
-      // Total travel = W + carW (same for cover below → perfect sync)
+      const carStart = -carW / 2
+      const carEnd   =  W - carW / 2
 
-      // ── On-load: headline fades in ───────────────────────────────────
-      gsap.fromTo(
-        headlineRef.current,
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 1, ease: 'power3.out', delay: 0.2 }
-      )
-
-      // ── Scroll timeline: car + cover — PERFECTLY SYNCED ─────────────
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
@@ -54,48 +48,18 @@ export default function App() {
         },
       })
 
-      // Car drives left → right
-      tl.fromTo(carRef.current, { x: carStart }, { x: carEnd, ease: 'none' }, 0)
+      // Car and ribbon move in exact lockstep — same duration, same position in timeline
+      tl.fromTo(carRef.current,    { x: carStart }, { x: carEnd, ease: 'none' }, 0)
+      tl.fromTo(ribbonRef.current, { width: 0 },    { width: W,  ease: 'none' }, 0)
 
-      // Cover tracks the car's RIGHT EDGE (not centre).
-      // Cover is inside .headline-banner (overflow:hidden) with green background.
-      // Its left edge = where the car's right side is on screen.
-      //
-      // car right-edge screen-X = car_x + carW
-      //   start: -302 + 302 = 0   → cover at banner left edge, whole banner green, text hidden ✓
-      //   end:    W   + 302       → cover clipped past 50vw boundary, all text revealed ✓
-      //
-      // Both car and cover travel (W + carW) px → zero drift, perfect sync.
-      const coverStart = carStart + carW   // = 0
-      const coverEnd   = carEnd   + carW   // = W + carW
-
-      tl.fromTo(
-        coverRef.current,
-        { x: coverStart },
-        { x: coverEnd, ease: 'none' },
-        0  // same point in timeline = in perfect lock-step with car
-      )
-
-      // ── Stat cards: appear when car reaches screen centre ────────────
-      // Car reaches screen centre (x = W/2) at scroll fraction:
-      //   f = (W/2 - carStart) / (carEnd - carStart) = (W/2 + carW) / (W + carW)
-      // On the 400vh container that maps to scroll position:
-      //   300vh × f  (300vh = scrollable range)
-      // ScrollTrigger `start` = top + (300vh × f)  as % of 400vh:
-      //   = (300 × f) / 400 × 100% of container height
-      // Approx ≈ 55-60% for typical screens → use '55% top'
-      gsap.set(statRefs.current, { opacity: 0, y: 28, scale: 0.9 })
-
+      // Stats appear when car is at screen centre (50% progress)
+      gsap.set(statRefs.current, { opacity: 0, y: 24, scale: 0.9 })
       gsap.to(statRefs.current, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: 0.6,
-        stagger: 0.13,
-        ease: 'power2.out',
+        opacity: 1, y: 0, scale: 1,
+        duration: 0.6, stagger: 0.13, ease: 'power2.out',
         scrollTrigger: {
           trigger: containerRef.current,
-          start: '55% top',
+          start: '62.5% top',   // 50% car progress ≈ 62.5% of 400vh container
           toggleActions: 'play none none reverse',
         },
       })
@@ -106,26 +70,25 @@ export default function App() {
 
   return (
     <div className="scroll-root" ref={containerRef}>
-      {/* ── Sticky viewport ──────────────────────────────── */}
       <div className="sticky-wrap">
         <div className="bg-dark" />
 
-        {/* Road band */}
         <div className="road-band">
 
-          {/* Green banner — 50%, overflow:hidden clips the cover inside */}
-          <div className="headline-banner" ref={headlineRef}>
-            <span className="headline-text">W&nbsp;E&nbsp;L&nbsp;C&nbsp;O&nbsp;M&nbsp;E&nbsp;&nbsp;I&nbsp;T&nbsp;Z&nbsp;F&nbsp;I&nbsp;Z&nbsp;Z</span>
+          {/* z-3: text sits in the road, revealed only where the green ribbon covers it */}
+          <span className="headline-text">
+            W&nbsp;E&nbsp;L&nbsp;C&nbsp;O&nbsp;M&nbsp;E&nbsp;&nbsp;&nbsp;&nbsp;I&nbsp;T&nbsp;Z&nbsp;F&nbsp;I&nbsp;Z&nbsp;Z
+          </span>
 
-            {/* Cover lives INSIDE the banner so overflow:hidden keeps it from
-                bleeding onto the road. Its background is the SAME green as the
-                banner — so the ribbon always looks green; only the white text
-                underneath is hidden. As it slides right and gets clipped away,
-                the text is revealed character by character. */}
-            <div className="text-cover" ref={coverRef} />
+          {/* z-4: green ribbon — grows from left edge to car centre.
+              overflow:hidden clips the text copy inside it to exactly its width. */}
+          <div className="green-ribbon" ref={ribbonRef}>
+            <span className="headline-text">
+              W&nbsp;E&nbsp;L&nbsp;C&nbsp;O&nbsp;M&nbsp;E&nbsp;&nbsp;&nbsp;&nbsp;I&nbsp;T&nbsp;Z&nbsp;F&nbsp;I&nbsp;Z&nbsp;Z
+            </span>
           </div>
 
-          {/* Car — z-index 5, above banner (1) and cover (2 inside banner) */}
+          {/* z-5: car — left:0, GSAP moves x so center tracks ribbon's right edge */}
           <div className="car-wrap" ref={carRef}>
             <img src={carImg} className="car-img" alt="McLaren 720S top view" />
           </div>
