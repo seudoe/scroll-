@@ -20,7 +20,6 @@ body {
 }
 
 /* ── Scroll container ─────────────────────────────────── */
-/* 400vh gives 300vh of scrollable travel to drive the animation */
 .scroll-root {
   height: 400vh;
   position: relative;
@@ -33,9 +32,6 @@ body {
   height: 100vh;
   width: 100%;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* ── Dark background ──────────────────────────────────── */
@@ -47,6 +43,16 @@ body {
 }
 
 /* ── Road band ────────────────────────────────────────── */
+/*
+  Z-INDEX STACK (within .road-band stacking context):
+    0  ::after           black asphalt, full width
+    1  .headline-banner  green ribbon, left 50%, OWN stacking context
+         z-index 1 │ .headline-text   white text
+         z-index 2 │ .text-cover      green cover (same colour as ribbon!)
+                          slides right with car → cover hides text (green-on-green)
+                          overflow:hidden clips it at banner boundary
+    5  .car-wrap         McLaren, on top of everything
+*/
 .road-band {
   position: absolute;
   top: 50%;
@@ -55,11 +61,9 @@ body {
   transform: translateY(-50%);
   height: 160px;
   z-index: 2;
-  display: flex;
-  align-items: center;
 }
 
-/* Asphalt fill behind everything */
+/* Black asphalt — full-width base layer */
 .road-band::after {
   content: '';
   position: absolute;
@@ -69,42 +73,29 @@ body {
 }
 
 /* ── Green headline banner ─────────────────────────────── */
+/*
+  - width 50%: green on the left, road shows through on the right
+  - overflow: hidden: CLIPS the text-cover so it never bleeds onto the road
+  - z-index 1: creates its own stacking context; car (z-index 5) sits above it
+*/
 .headline-banner {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
-  /* Full width — the road overlay masks the right half visually */
-  width: 100%;
+  width: 50%;
   background: #2e8b42;
-  z-index: 1;                   /* below road overlay (z-index 2) and car (z-index 5) */
+  z-index: 1;
   display: flex;
   align-items: center;
   padding-left: 28px;
-
-  /* overflow:hidden clips the text-cover within the banner */
-  overflow: hidden;
+  overflow: hidden;   /* ← clips text-cover; it can travel freely inside */
 }
-
-/* ── Road right-half overlay ───────────────────────────── */
-/* Sits on top of the banner, covering its right half with road colour.
-   The car (z-index 5) still draws above this overlay. */
-.road-right {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 50%;
-  background: #111;
-  z-index: 3;
-  pointer-events: none;
-}
-
 
 /* ── Headline text ─────────────────────────────────────── */
 .headline-text {
   position: relative;
-  z-index: 1;                   /* sits below the cover (z-index 2) */
+  z-index: 1;         /* within banner stacking context; below cover (z-index 2) */
   font-size: clamp(28px, 5vw, 74px);
   font-weight: 900;
   color: rgba(255, 255, 255, 0.92);
@@ -118,22 +109,26 @@ body {
 
 /* ── Reveal cover ─────────────────────────────────────── */
 /*
-  This div lives INSIDE .headline-banner (overflow:hidden).
-  Its left edge is placed at the car's screen-X position via GSAP.
-  Everything to the left of the cover = text is revealed.
-  Everything to the right (under the cover) = text is hidden.
-  The road colour (#111) makes it blend seamlessly with the asphalt.
+  LIVES INSIDE .headline-banner.
+  KEY: background is #2e8b42 — the SAME GREEN as the banner.
+  Effect: wherever the cover sits you see green (ribbon looks normal),
+  but the white text underneath is invisible (green-on-green).
+  As the car drives right the cover follows, and overflow:hidden clips
+  it away from the left → white text appears, still on green ribbon.
+
+  When cover moves fully past the 50% banner boundary it is completely
+  clipped away, leaving the entire text visible.
+
+  z-index 2 (within banner stacking context) → above text (1).
 */
 .text-cover {
   position: absolute;
   top: 0;
-  /* left:0 is the reference — GSAP translateX moves it */
   left: 0;
   height: 100%;
-  /* Extra wide so it fully covers the banner even at the start */
-  width: 300vw;
-  background: #111;             /* same as road / asphalt */
-  z-index: 2;                   /* above text (1), below car (5) */
+  width: 300vw;           /* wider than any screen */
+  background: #2e8b42;   /* ← same green as banner — ribbon colour preserved */
+  z-index: 2;
   pointer-events: none;
   will-change: transform;
 }
@@ -142,8 +137,8 @@ body {
 .car-wrap {
   position: absolute;
   top: 50%;
-  left: 0;                      /* GSAP owns x — no CSS horizontal offset */
-  transform: translateY(-50%);  /* Only vertical centering via CSS */
+  left: 0;
+  transform: translateY(-50%);
   z-index: 5;
   will-change: transform;
   display: flex;
@@ -152,7 +147,6 @@ body {
 }
 
 .car-img {
-  /* PNG is landscape (nose→right). Fits road naturally. */
   height: 144px;
   width: auto;
   display: block;
@@ -194,20 +188,8 @@ body {
   line-height: 1.4;
 }
 
-/* Card positions (mirror the reference screenshots) */
-.stat-top-left {
-  top: 8%;
-  left: 52%;
-}
-.stat-top-right {
-  top: 8%;
-  left: calc(52% + 228px);
-}
-.stat-bottom-left {
-  bottom: 8%;
-  left: 46%;
-}
-.stat-bottom-right {
-  bottom: 8%;
-  left: calc(46% + 228px);
-}
+/* Card positions */
+.stat-top-left    { top: 8%;    left: 52%; }
+.stat-top-right   { top: 8%;    left: calc(52% + 228px); }
+.stat-bottom-left { bottom: 8%; left: 46%; }
+.stat-bottom-right{ bottom: 8%; left: calc(46% + 228px); }

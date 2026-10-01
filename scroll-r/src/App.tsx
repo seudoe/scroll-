@@ -57,13 +57,17 @@ export default function App() {
       // Car drives left → right
       tl.fromTo(carRef.current, { x: carStart }, { x: carEnd, ease: 'none' }, 0)
 
-      // Cover: left edge tracks car's screen CENTER at all times.
-      // car center screen-X = car-wrap.left(0) + car_x + carW/2
-      //   start: -carW + carW/2 = -carW/2
-      //   end:    W   + carW/2
-      // Both cover and car travel exactly (W + carW) px → zero drift.
-      const coverStart = carStart + carW / 2   // = -carW/2  (banner overflow:hidden clips it)
-      const coverEnd   = carEnd   + carW / 2   // = W + carW/2
+      // Cover tracks the car's RIGHT EDGE (not centre).
+      // Cover is inside .headline-banner (overflow:hidden) with green background.
+      // Its left edge = where the car's right side is on screen.
+      //
+      // car right-edge screen-X = car_x + carW
+      //   start: -302 + 302 = 0   → cover at banner left edge, whole banner green, text hidden ✓
+      //   end:    W   + 302       → cover clipped past 50vw boundary, all text revealed ✓
+      //
+      // Both car and cover travel (W + carW) px → zero drift, perfect sync.
+      const coverStart = carStart + carW   // = 0
+      const coverEnd   = carEnd   + carW   // = W + carW
 
       tl.fromTo(
         coverRef.current,
@@ -109,19 +113,19 @@ export default function App() {
         {/* Road band */}
         <div className="road-band">
 
-          {/* Green banner — now full width so text never clips.
-              The .road-right overlay masks the right half with road colour. */}
+          {/* Green banner — 50%, overflow:hidden clips the cover inside */}
           <div className="headline-banner" ref={headlineRef}>
             <span className="headline-text">W&nbsp;E&nbsp;L&nbsp;C&nbsp;O&nbsp;M&nbsp;E&nbsp;&nbsp;I&nbsp;T&nbsp;Z&nbsp;F&nbsp;I&nbsp;Z&nbsp;Z</span>
-            {/* Moving reveal cover — tracks the car, reveals text left→right */}
+
+            {/* Cover lives INSIDE the banner so overflow:hidden keeps it from
+                bleeding onto the road. Its background is the SAME green as the
+                banner — so the ribbon always looks green; only the white text
+                underneath is hidden. As it slides right and gets clipped away,
+                the text is revealed character by character. */}
             <div className="text-cover" ref={coverRef} />
           </div>
 
-          {/* Black road overlay on right half — sits above the green banner
-              but below the car, maintaining the road/banner visual split */}
-          <div className="road-right" />
-
-          {/* Car */}
+          {/* Car — z-index 5, above banner (1) and cover (2 inside banner) */}
           <div className="car-wrap" ref={carRef}>
             <img src={carImg} className="car-img" alt="McLaren 720S top view" />
           </div>
