@@ -1,0 +1,179 @@
+/* ── Reset & base ─────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #3a3a3f;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100%;
+}
+
+/* ── Scroll container ─────────────────────────────────── */
+/* Tall enough so the scroll drives the whole animation */
+.scroll-root {
+  height: 400vh; /* 4 screens of scroll travel */
+  position: relative;
+}
+
+/* ── Sticky viewport ─────────────────────────────────── */
+.sticky-wrap {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Dark background ──────────────────────────────────── */
+.bg-dark {
+  position: absolute;
+  inset: 0;
+  background: #3a3a3f;
+  z-index: 0;
+}
+
+/* ── Road band ────────────────────────────────────────── */
+.road-band {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: 160px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Asphalt fill (right portion, behind the headline) */
+.road-band::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #111;
+  z-index: 0;
+}
+
+/* ── Green headline banner ─────────────────────────────── */
+.headline-banner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  /* Covers left half of road */
+  width: 50%;
+  background: #2e8b42;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  padding-left: 32px;
+  overflow: hidden;
+}
+
+.headline-text {
+  font-size: clamp(32px, 5.5vw, 80px);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* ── Car ──────────────────────────────────────────────── */
+.car-wrap {
+  position: absolute;
+  /* Vertically centred in the road */
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5; /* on top of both road and banner */
+  will-change: transform;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.car-svg {
+  width: auto;
+  height: 148px; /* fits snugly in 160px road */
+  display: block;
+  filter: drop-shadow(0 4px 18px rgba(0, 0, 0, 0.6));
+}
+
+.car-img {
+  /* The PNG is landscape (nose pointing right) — perfect for horizontal road */
+  height: 140px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.7));
+  object-fit: contain;
+}
+
+/* ── Stats grid ───────────────────────────────────────── */
+.stats-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.stat-card {
+  position: absolute;
+  width: 200px;
+  padding: 20px 22px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+}
+
+/* Positions — roughly matching the reference screenshots */
+.stat-top-left {
+  top: 8%;
+  left: 52%;
+}
+
+.stat-top-right {
+  top: 8%;
+  left: calc(52% + 220px);
+}
+
+.stat-bottom-left {
+  bottom: 8%;
+  left: 46%;
+}
+
+.stat-bottom-right {
+  bottom: 8%;
+  left: calc(46% + 220px);
+}
