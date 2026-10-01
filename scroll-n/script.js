@@ -1,69 +1,53 @@
-// Register ScrollTrigger (needed for Point 3, but good practice to register early)
 gsap.registerPlugin(ScrollTrigger);
 
-// Point 2: Initial Load Animation
 document.addEventListener("DOMContentLoaded", () => {
-    // Set initial states to prevent Flash of Unstyled Content (FOUC)
-    gsap.set(".headline", { y: 30, opacity: 0 });
-    gsap.set(".metric", { y: 20, opacity: 0 });
-    gsap.set(".main-visual", { y: 150, opacity: 0, scale: 0.95 });
-
-    // Create a timeline for the initial load
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-    // 1. Headline appears smoothly (fade + slight upward movement)
-    tl.to(".headline", {
-        y: 0,
-        opacity: 1,
-        duration: 1.2,
-        delay: 0.2
-    })
-    // 2. Statistics animate in one by one with a subtle delay (staggered reveal)
-    .to(".metric", {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        stagger: 0.2
-    }, "-=0.6") // Start slightly before headline finishes
+    const container = document.getElementById("container");
+    const car = document.getElementById("car");
+    const ribbon = document.getElementById("ribbon");
     
-    // 3. The main visual element fades in gracefully
-    .to(".main-visual", {
-        y: 0,
-        opacity: 1,
-        scale: 1,
-        duration: 1.5,
-        ease: "power2.out"
-    }, "-=0.8");
-    // --- Point 3: Scroll-Based Animation (Core Feature) ---
-    // This connects the animation to the page scroll progress (scrub)
-    // We will pin the hero section while the user scrolls, making the car scale up and come closer,
-    // while the headline and metrics fade out smoothly.
-    const scrollTl = gsap.timeline({
+    // Select all the stat cards
+    const stats = [
+        document.getElementById("stat-1"),
+        document.getElementById("stat-2"),
+        document.getElementById("stat-3"),
+        document.getElementById("stat-4")
+    ];
+
+    const W = window.innerWidth;
+    const carW = 302; // px at height 144px
+
+    // Car CENTER = green ribbon RIGHT EDGE at all times.
+    // Car center starts at x=0 (left screen edge) → ends at x=W (right edge).
+    const carStart = -carW / 2;
+    const carEnd = W - carW / 2;
+
+    const tl = gsap.timeline({
         scrollTrigger: {
-            trigger: "#hero",
-            start: "top top", // When top of hero hits top of viewport
-            end: "+=150%",    // Animation duration relative to scroll distance (1.5x screen height)
-            scrub: 1,         // Smooth scrubbing with 1 second catch-up
-            pin: true         // Pin the section so it stays on screen during the animation
-        }
+            trigger: container,
+            start: "top top",
+            end: "bottom bottom",
+            scrub: 1.0,
+        },
     });
 
-    scrollTl
-        // Fade out and move up the text content
-        .to("#hero-content", {
-            y: -150,
-            opacity: 0,
-            duration: 1,
-            ease: "power1.inOut"
-        }, 0)
-        // Simultaneously scale up, move, and add a subtle rotation to the car
-        // so it feels like a dynamic 3D camera move (meets "Motion Quality" guideline)
-        .to(".main-visual", {
-            scale: 2.2,
-            y: 50,
-            rotationX: 10,  // Subtle 3D tilt
-            transformOrigin: "center bottom",
-            duration: 2,
-            ease: "power1.inOut"
-        }, 0);
+    // Car and ribbon move in exact lockstep
+    tl.fromTo(car, { x: carStart }, { x: carEnd, ease: "none" }, 0);
+    tl.fromTo(ribbon, { width: 0 }, { width: W, ease: "none" }, 0);
+
+    // Stats appear when car is at screen centre (50% progress)
+    gsap.set(stats, { opacity: 0, y: 24, scale: 0.9 });
+    
+    gsap.to(stats, {
+        opacity: 1, 
+        y: 0, 
+        scale: 1,
+        duration: 0.6, 
+        stagger: 0.13, 
+        ease: "power2.out",
+        scrollTrigger: {
+            trigger: container,
+            start: "62.5% top", // 50% car progress ≈ 62.5% of 400vh container
+            toggleActions: "play none none reverse",
+        },
+    });
 });

@@ -1,0 +1,140 @@
+/* ── Reset & base ─────────────────────────────────────── */
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #3a3a3f;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  overflow-x: hidden;
+  margin: 0;
+}
+
+/* ── Scroll container (400vh) ─────────────────────────── */
+.scroll-root { height: 400vh; position: relative; }
+
+/* ── Sticky viewport ─────────────────────────────────── */
+.sticky-wrap {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ── Dark background (z-index 1) ──────────────────────── */
+.bg-dark {
+  position: absolute;
+  inset: 0;
+  background: #3a3a3f;
+  z-index: 1;
+}
+
+/* ── Black road ribbon (z-index 2) ────────────────────── */
+.road-band {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  height: 160px;
+  background: #111;
+  z-index: 2;
+}
+
+/* ── Text formatting (shared) ─────────────────────────── */
+.headline-text {
+  position: absolute;
+  left: 28px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: clamp(28px, 5vw, 74px);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  text-transform: uppercase;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Base text in the road (z-index 3) - invisible to start */
+.road-band > .headline-text {
+  z-index: 3;
+  color: transparent; 
+}
+
+/* ── Green ribbon (z-index 4) ─────────────────────────── */
+.green-ribbon {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: #2e8b42;
+  overflow: hidden; /* Clips the white text exactly at the ribbon's edge */
+  z-index: 4;
+  will-change: width;
+}
+
+/* Text inside green ribbon - visible white */
+.green-ribbon > .headline-text {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+/* ── Car (z-index 5) ──────────────────────────────────── */
+.car-wrap {
+  position: absolute;
+  top: 50%;
+  margin-top: -72px; /* Centers 144px height */
+  left: 0;
+  z-index: 5;
+  will-change: transform;
+}
+
+.car-img {
+  height: 144px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.8));
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Stats grid ───────────────────────────────────────── */
+.stats-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.stat-card {
+  position: absolute;
+  width: 210px;
+  padding: 20px 22px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.stat-value {
+  font-size: 38px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.82);
+  line-height: 1.4;
+}
+
+/* Card positions */
+.stat-top-left    { top: 8%;    left: 52%; }
+.stat-top-right   { top: 8%;    left: calc(52% + 228px); }
+.stat-bottom-left { bottom: 8%; left: 46%; }
+.stat-bottom-right{ bottom: 8%; left: calc(46% + 228px); }
