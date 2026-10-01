@@ -1,6 +1,6 @@
 # Car Scroll Animation Project
 
-This project demonstrates a scroll-driven animation featuring a car moving across the screen while revealing a headline. 
+This project demonstrates a scroll-driven animation featuring a car moving across the screen while revealing a headline.
 
 ## 🏗️ Workspaces Architecture
 
@@ -16,22 +16,30 @@ This project is built using an **npm workspaces** setup. It contains two separat
 Because this is a monorepo using workspaces, you can run either project directly from this root directory, or by navigating into their respective folders.
 
 ### Running the React Version (`scroll-r`)
+
 From the root directory:
+
 ```bash
 npm run dev --workspace=scroll-r
 ```
+
 Or, by navigating into the folder:
+
 ```bash
 cd scroll-r
 npm run dev
 ```
 
 ### Running the Native Version (`scroll-n`)
+
 From the root directory:
+
 ```bash
 npm run dev --workspace=scroll-n
 ```
+
 Or, by navigating into the folder:
+
 ```bash
 cd scroll-n
 npm run dev
@@ -49,7 +57,7 @@ The animation is powered by **GSAP (GreenSock) & ScrollTrigger**, but the real t
 1. **`z-index: 1` (Background)**: The dark grey base background of the page.
 2. **`z-index: 2` (Black Road)**: A full-width horizontal black ribbon representing the asphalt road.
 3. **`z-index: 3` (Base Text)**: The "WELCOME ITZFIZZ" text sitting directly on the road. This text is styled with `color: transparent`, meaning it acts as a structural placeholder but is invisible on the black road.
-4. **`z-index: 4` (Green Ribbon)**: A green `div` that starts on the left side. 
+4. **`z-index: 4` (Green Ribbon)**: A green `div` that starts on the left side.
    - **The Trick**: This green ribbon has `overflow: hidden`. Inside it is an exact duplicate of the "WELCOME ITZFIZZ" text, but coloured white. Because of the hidden overflow, the white text is *only* visible exactly where the green ribbon covers it!
 5. **`z-index: 5` (The Car)**: The top-down car image sits on top of everything.
 
